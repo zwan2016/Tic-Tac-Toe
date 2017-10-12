@@ -1,0 +1,3 @@
+{"name":"Wan","marker":"w","ttt":[0,0,0],"uttt":[0,0,0]}
+{"name":"Sherry","marker":"s","ttt":[0,0,0],"uttt":[0,0,0]}
+{"name":"player1","marker":"b","ttt":[0,0,0],"uttt":[0,0,0]}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tic-tac-toe game</title>
+    <style type="text/css">
+        body {
+            margin: 100px;
+        }
+    </style>
+    <script type="text/javascript">
+        var response;
+        var xhttp;
+        var xhttp1;
+        var xhttp2;
+        var win11;
+        var tie11;
+        var lose11;
+        var win12;
+        var tie12;
+        var lose12;
+        var win21;
+        var tie21;
+        var lose21;
+        var win22;
+        var tie22;
+        var lose22;
+
+        if(navigator.appName == "Microsoft Internet Explorer") {
+            xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            xhttp1 = new ActiveXObject("Microsoft.XMLHTTP");
+            xhttp2 = new ActiveXObject("Microsoft.XMLHTTP");
+
+        } else {
+            xhttp = new XMLHttpRequest();
+            xhttp1 = new XMLHttpRequest();
+            xhttp2 = new XMLHttpRequest();
+        }
+
+        function getPlayerNames () {
+            var request = {"controllerMethod":"getAllSavedPlayers", "input":""};
+            xhttp.open("POST", "ttt.cgi", true);
+            xhttp.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200){
+                    //document.getElementById('test').innerHTML = xhttp.responseText;
+                    response = JSON.parse(xhttp.responseText);
+                    var result = "";
+                    for(var i = 0; i < response.players.length; i++){
+                        result += "<option>" + response.players[i].name+"</option>";
+                    }
+                    var result1 = result + "<option id=\"create1\">create a new user</option>";
+                    var result2 = result + "<option id=\"create2\">create a new user</option>"
+                    document.getElementById('player1').innerHTML = result1;
+                    document.getElementById('player2').innerHTML = result2;
+                    setUsers(1);
+                    setUsers(2);
+                }
+            }
+            //Make request
+            xhttp.send(JSON.stringify(request));
+        }
+        
+        function setUsers(x){
+            if(x==1&&document.getElementById('create1').selected==true){
+                var result = "name:<input type=\"text\" id=\"name1\"></input>marker:<input type=\"text\" id=\"marker1\"></input>"
+                document.getElementById('c1').innerHTML = result;
+            }
+            if(x==1&&document.getElementById('create1').selected!=true){
+                var result = ""
+                document.getElementById('c1').innerHTML = result;
+            }
+            if(x==2&&document.getElementById('create2').selected==true){
+                var result = "name:<input type=\"text\" id=\"name2\"></input>marker:<input type=\"text\" id=\"marker2\"></input>"
+                document.getElementById('c2').innerHTML = result;
+            }
+            if(x==2&&document.getElementById('create2').selected!=true){
+                var result = ""
+                document.getElementById('c2').innerHTML = result;
+            }
+        }
+        
+       function submit(){
+           var name1, name2, marker1, marker2;
+           var f1 = 0;
+           var f2 = 0;
+           if(document.getElementById('create1').selected!=true){
+               var select = document.getElementById('player1');
+               name1 = select.options[select.selectedIndex].value;
+               win11 = JSON.stringify(response.players[select.selectedIndex].ttt[0]);
+               tie11 = JSON.stringify(response.players[select.selectedIndex].ttt[1]);
+               lose11 = JSON.stringify(response.players[select.selectedIndex].ttt[2]);
+               win12 = JSON.stringify(response.players[select.selectedIndex].uttt[0]);
+               tie12 = JSON.stringify(response.players[select.selectedIndex].uttt[1]);
+               lose12 = JSON.stringify(response.players[select.selectedIndex].uttt[2]);
+               for(var i = 0; i < response.players.length; i++){
+                   if(name1 == JSON.stringify(response.players[i].name).replace(/(\")/g, "")){
+                       marker1 = JSON.stringify(response.players[i].marker).replace(/(\")/g, "");
+                   }
+               }
+           }
+           else{
+               name1 =  document.getElementById('name1').value;
+               marker1 = document.getElementById('marker1').value;
+               for(var i = 0; i < response.players.length; i++){
+                   if(name1 == JSON.stringify(response.players[i].name).replace(/(\")/g, "")){
+                       alert("User "+name1+" is exist! Please change a name.");
+                       return;
+                   }
+               }
+               win11 = "0";
+               tie11 = "0";
+               lose11 = "0";
+               win12 = "0";
+               tie12 = "0";
+               lose12 = "0";
+               //alert(name1+marker1);
+               f1=1;
+           }
+               
+           if(document.getElementById('create2').selected!=true){
+               var select = document.getElementById('player2');
+               name2 = select.options[select.selectedIndex].value;
+               for(var i = 0; i < response.players.length; i++){
+                   if(name2 == JSON.stringify(response.players[i].name).replace(/(\")/g, "")){
+                       marker2 = JSON.stringify(response.players[i].marker).replace(/(\")/g, "");
+                   }
+               }
+               win21 = JSON.stringify(response.players[select.selectedIndex].ttt[0]);
+               tie21 = JSON.stringify(response.players[select.selectedIndex].ttt[1]);
+               lose21 = JSON.stringify(response.players[select.selectedIndex].ttt[2]);
+               win22 = JSON.stringify(response.players[select.selectedIndex].uttt[0]);
+               tie22 = JSON.stringify(response.players[select.selectedIndex].uttt[1]);
+               lose22 = JSON.stringify(response.players[select.selectedIndex].uttt[2]);
+           }
+           else{
+               name2 =  document.getElementById('name2').value;
+               marker2 = document.getElementById('marker2').value;
+               for(var i = 0; i < response.players.length; i++){
+                   if(name2 == JSON.stringify(response.players[i].name).replace(/(\")/g, "")){
+                       alert("User "+name2+" is exist! Please change a name.");
+                       return;
+                   }
+               }
+               win21 = "0";
+               tie21 = "0";
+               lose21 = "0";
+               win22 = "0";
+               tie22 = "0";
+               lose22 = "0";
+               f2=1;
+           }
+           
+           if(marker1.length!=1 || marker2.length!=1){
+             alert("Marker should be a character!");
+             return;
+           }
+           if(name1 == name2){
+               alert("Two players have same name, please change.");
+               return;
+           }
+           else if(marker1 == marker2){
+               alert("Two players have same marker, they can not play with each other.");
+               return;
+           }
+           else{
+               if(f1==1){
+				   //alert("??");
+				  
+                 xhttp1.open("POST", "ttt.cgi", true);
+                 xhttp1.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200){
+                    //alert(xhttp1.responseText);
+                }
+            }
+                 var request1 = {"controllerMethod":"createPlayer", "input":{"name":name1, "marker":marker1, "playerNum":1}};
+                 xhttp1.send(JSON.stringify(request1));
+               }
+               if(f2==1){
+				   //alert("??2");
+				  
+                 xhttp2.open("POST", "ttt.cgi", true);
+                 xhttp2.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200){
+                    //alert(xhttp2.responseText);
+                }
+            }
+                 var request2 = {"controllerMethod":"createPlayer", "input":{"name":name2, "marker":marker2, "playerNum":2}};
+                 xhttp2.send(JSON.stringify(request2));
+               }
+               /*
+               document.getElementById('n1').innerHTML = name1;
+               document.getElementById('n2').innerHTML = name2;
+               document.getElementById('m1').innerHTML = marker1;
+               document.getElementById('m2').innerHTML = marker2;*/
+               if(document.getElementById('ttt').selected==true){
+                 var url="chessboard.html"+"?"+name1+"&"+name2+"&"+marker1+"&"+marker2+"&"+win11+"&"+tie11+"&"+lose11+"&"+win21+"&"+tie21+"&"+lose21;
+               }
+               else{
+                  var url="chessboard1.html"+"?"+name1+"&"+name2+"&"+marker1+"&"+marker2+"&"+win12+"&"+tie12+"&"+lose12+"&"+win22+"&"+tie22+"&"+lose22;
+               }
+               window.location.assign(url);
+           }
+       }      
+    </script>
+</head>
+<body onload="getPlayerNames()">
+<div>
+    player1:
+    <select onchange="setUsers(1)" id="player1">
+    </select>
+    <div id="c1"></div>
+    
+</div>
+<div id="result">
+    player2:
+    <select onchange="setUsers(2)" id="player2">
+    </select>
+    <div id="c2"></div>
+</div>
+<div>
+    Game type:
+    <select >
+      <option id="ttt">Tic-tac-toe</option>
+      <option id="uttt">Ultimate TTT</option>
+    </select>
+    <div id="c2"></div>
+</div>
+<div id="test">
+</div>
+<button id="submit" onclick="submit()">submit</button>
+<div id="n1"></div>
+<div id="n2"></div>
+<div id="m1"></div>
+<div id="m2"></div>
+</body>
+</html>
+

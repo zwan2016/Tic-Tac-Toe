@@ -1,0 +1,444 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ultimate tic-tac-toe game</title>
+    <style type="text/css">
+        body {
+            margin: 100px;
+        }
+    </style>
+    <script type="text/javascript">
+        var name1;
+        var name2;
+        var marker1;
+        var marker2;
+        var canvas;
+        var context;
+        var isplayer1 = true;
+        var isWell = false;
+        var xhttp;
+        var xhttp1;
+        var win1;
+        var tie1;
+        var lose1;
+        var win2;
+        var tie2;
+        var lose2;
+        var lastx=-1;
+        var lasty=-1;
+        var response;
+        //var gameBoard="{gameBoard:[";
+
+		if(navigator.appName == "Microsoft Internet Explorer") {
+	    	xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			xhttp1 = new ActiveXObject("Microsoft.XMLHTTP");
+		} else {
+		    xhttp = new XMLHttpRequest();
+			xhttp1 = new XMLHttpRequest();
+		}
+
+
+		function setSelection(player, row, col, outerRow, outerCol){
+         //document.getElementById('test1').innerHTML = outerRow;
+			  var request = {"controllerMethod":"setSelection","input":{"row":row,"col":col,"int":player,"outerRow":outerRow,"outerCol":outerCol}};
+			  xhttp.open("POST", "ttt.cgi", true);
+			  xhttp.onreadystatechange = function() {
+					if(this.readyState == 4 && this.status == 200){
+						response = eval("("+xhttp.responseText+")");
+						if(response.smallwin[1] != "0"){
+              if(lasty*3+lastx==Number(response.smallwin[0])){
+                  lastx=-1;
+                  lasty=-1;
+              }                         
+							filltable(response.smallwin[0], response.smallwin[1]);
+              if(response.winner == "1"){
+								alert(name1+" wins!");
+								isWell = true;
+							}
+							if(response.winner == "2"){
+								alert(name2+" wins!");
+								isWell = true;
+							}
+							if(response.winner == "3"){
+								alert("Tie!");
+								isWell = true;
+							}
+						}
+						document.getElementById('test1').innerHTML = xhttp.responseText;
+					}  
+			  }
+			  //Make request
+			  xhttp.send(JSON.stringify(request));
+		}
+
+        var chessData = new Array(9); //initialization
+        for (var x = 0; x < 9; x++) {
+            chessData[x] = new Array(9);
+            for (var y = 0; y < 9; y++) {
+                chessData[x][y] = 0;
+            }
+        }
+        
+        var chessData1 = new Array(3); //initialization
+        for (var x = 0; x < 9; x++) {
+            chessData1[x] = new Array(3);
+            for (var y = 0; y < 9; y++) {
+                chessData1[x][y] = 0;
+            }
+        }
+        
+        function drawRect() {
+            var request = {"controllerMethod":"restart","input":""};
+            xhttp1.open("POST", "ttt.cgi", true);	      
+ 			      //Make request
+ 			      xhttp1.send(JSON.stringify(request)); 
+            var url = location.href;
+            var tmp1 = url.split("?")[1];
+            name1 = tmp1.split("&")[0];
+            name2 = tmp1.split("&")[1];
+            marker1 = tmp1.split("&")[2];
+            marker2 = tmp1.split("&")[3];
+            win1 = tmp1.split("&")[4];
+            tie1 = tmp1.split("&")[5];
+            lose1 = tmp1.split("&")[6];
+            win2 = tmp1.split("&")[7];
+            tie2 = tmp1.split("&")[8];
+            lose2 = tmp1.split("&")[9];
+            document.getElementById('record1').innerHTML = name1+":"+win1+"win "+tie1+"tie "+lose1+"lose";
+            document.getElementById('record2').innerHTML = name2+":"+win2+"win "+tie2+"tie "+lose2+"lose";
+            canvas = document.getElementById("canvas");
+            context = canvas.getContext("2d");
+            document.getElementById('test').innerHTML = name1+"'s turn.";
+
+            for (var i = 0; i <= 450; i += 50) {
+                context.beginPath();
+                context.moveTo(0, i);
+                context.lineTo(450, i);
+                context.closePath();
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(i, 0);
+                context.lineTo(i, 450);
+                context.closePath();
+                context.stroke();
+            }
+            for (var i = 0; i <= 450; i += 150) {
+                context.lineWidth = 4;
+                context.beginPath();
+                context.moveTo(0, i);
+                context.lineTo(450, i);
+                context.closePath();
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(i, 0);
+                context.lineTo(i, 450);
+                context.closePath();
+                context.stroke();
+			      }
+        }
+        
+        function filltable(num, result){
+            var chess = Number(result);
+            if(num == "0"){
+                for(var x=0; x<3; x++){
+                    for(var y=0; y<3; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[0][0] = 1;
+                context.clearRect(2,2,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 35, 120);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 35, 120);
+                }
+                else{
+                    context.fillText("\=", 35, 120);
+                }
+            }
+            if(num == "1"){
+                for(var x=3; x<6; x++){
+                    for(var y=0; y<3; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[0][1] = 1;
+                context.clearRect(152,2,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 185, 120);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 185, 120);
+                }
+                else{
+                    context.fillText("\=", 185, 120);
+                }
+            }
+            if(num == "2"){
+                for(var x=6; x<9; x++){
+                    for(var y=0; y<3; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[0][2] = 1;
+                context.clearRect(302,2,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 335, 120);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 335, 120);
+                }
+                else{
+                    context.fillText("\=", 335, 120);
+                }
+            }
+            if(num == "3"){
+                for(var x=0; x<3; x++){
+                    for(var y=3; y<6; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[1][0] = 1;
+                context.clearRect(2,152,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 35, 270);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 35, 270);
+                }
+                else{
+                    context.fillText("\=", 35, 270);
+                }
+            }
+            if(num == "4"){
+                for(var x=3; x<6; x++){
+                    for(var y=3; y<6; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[1][1] = 1;
+                context.clearRect(152,152,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 185, 270);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 185, 270);
+                }
+                else{
+                    context.fillText("\=", 185, 270);
+                }
+            }
+            if(num == "5"){
+                for(var x=6; x<9; x++){
+                    for(var y=3; y<6; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[1][2] = 1;
+                context.clearRect(302,152,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 335, 270);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 335, 270);
+                }
+                else{
+                    context.fillText("\=", 335, 270);
+                }
+            }
+            if(num == "6"){
+                for(var x=0; x<3; x++){
+                    for(var y=6; y<9; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[2][0] = 1;
+                context.clearRect(2,302,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 35, 420);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 35, 420);
+                }
+                else{
+                    context.fillText("\=", 35, 420);
+                }
+            }
+            if(num == "7"){
+                for(var x=3; x<6; x++){
+                    for(var y=6; y<9; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[2][1] = 1;
+                context.clearRect(152,302,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 185, 420);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 185, 420);
+                }
+                else{
+                    context.fillText("\=", 185, 420);
+                }
+            }
+            if(num == "8"){
+                for(var x=6; x<9; x++){
+                    for(var y=6; y<9; y++){
+                        drawChess(chess, x, y);
+                    }
+                }
+                chessData1[2][2] = 1;
+                context.clearRect(302,302,147,147);
+                context.font="150px Courier New";
+                if(chess==1){
+                    context.fillText(marker1, 335, 420);
+                }
+                else if(chess==2){
+                    context.fillText(marker2, 335, 420);
+                }
+                else{
+                    context.fillText("\=", 335, 420);
+                }
+            }
+        }
+        
+        function play(e) {//onclick
+            var x = parseInt((e.clientX-100) / 50);
+            var y = parseInt((e.clientY-100) / 50);
+            if(lastx>=0&&lasty>=0){
+                if(!(x>=lastx*3&&x<lastx*3+3&&y>=lasty*3&&y<lasty*3+3)){
+                  alert("You should put chess in ("+lasty+","+lastx+")");
+                  return;
+                }
+            }
+            if (chessData[x][y] != 0) {
+                alert("It has been placed");
+                return;
+            }
+            if (isWell == true) {
+                alert("Game Over");
+                return;
+            }
+            if (isplayer1) {
+                var outerRow;
+                var outerCol;
+                isplayer1 = false;
+                if(chessData1[y%3][x%3]!=0){
+                    lastx=-1;
+                    lasty=-1;
+                }
+                else{
+                    lastx = x%3;
+                    lasty = y%3;
+                }
+                if(x<3&&x>=0){
+                  outerCol = 0;
+                }
+                if(x<6&&x>=3){
+                  outerCol = 1;
+                }
+                if(x<9&&x>=6){
+                  outerCol = 2;
+                }
+                if(y<3&&y>=0){
+                  outerRow = 0;
+                }
+                if(y<6&&y>=3){
+                  outerRow = 1;
+                }
+                if(y<9&&y>=6){
+                  outerRow = 2;
+                }
+                drawChess(1, x, y);
+                setSelection(1,y%3,x%3, outerRow, outerCol);
+                document.getElementById('test').innerHTML = name2+"'s turn.";
+            }
+            else {
+                var outerRow;
+                var outerCol;
+                isplayer1 = true;
+                if(chessData1[y%3][x%3]!=0){
+                    lastx=-1;
+                    lasty=-1;
+                }
+                else{
+                    lastx = x%3;
+                    lasty = y%3;
+                }
+                if(x<3&&x>=0){
+                  outerCol = 0;
+                }
+                if(x<6&&x>=3){
+                  outerCol = 1;
+                }
+                if(x<9&&x>=6){
+                  outerCol = 2;
+                }
+                if(y<3&&y>=0){
+                  outerRow = 0;
+                }
+                if(y<6&&y>=3){
+                  outerRow = 1;
+                }
+                if(y<9&&y>=6){
+                  outerRow = 2;
+                }
+                drawChess(2, x, y);
+                setSelection(2,y%3,x%3, outerRow, outerCol);
+                document.getElementById('test').innerHTML = name1+"'s turn.";
+            }
+
+        }
+        function drawChess(chess, x, y) {
+            if (x >= 0 && x < 9 && y >= 0 && y < 9) {
+                if (chess == 1) {
+                    context.font="50px Courier New";
+                    context.fillText(marker1, x * 50+11, y * 50+37);
+                    chessData[x][y] = 1;
+                }
+                else {
+                    context.font="50px Courier New";
+                    context.fillText(marker2, x * 50+11, y * 50+37);
+                    chessData[x][y] = 2;
+                }
+            }
+        }
+        function submit(){
+            var request = {"controllerMethod":"restart","input":""};
+            xhttp1.open("POST", "ttt.cgi", true);
+ 			      
+ 			      //Make request
+ 			      xhttp1.send(JSON.stringify(request));  
+            window.location.reload();      
+        }
+    </script>
+</head>
+<body onload="drawRect()">
+<div>
+    <canvas width="450" id="canvas" onmousedown="play(event)" height="450">Your browser does not support html5.
+    </canvas>
+</div>
+<div id="test">
+</div>
+<div id="test1">
+</div>
+<div id="record1"></div>
+<div id="record2"></div>
+<button id="restart" onclick="submit()">Restart</button>
+
+
+</body>
+</html>
